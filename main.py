@@ -23,7 +23,11 @@ BUCKET = "public"
 
 async def parse_url(url: str):
     try:
-        return url.split("//")[1].split("/")[0].split(".")[0] + str(random.randint(0, 100))
+        if "www" in url:
+            return url.split("//")[1].split("/")[1].split(".")[0] + str(random.randint(0, 100))
+        else:
+            return url.split("//")[1].split("/")[0].split(".")[0] + str(random.randint(0, 100))
+
     except Exception:
         return str(random.randint(0, 100))
 
