@@ -7,8 +7,6 @@ class Url(BaseModel):
 
     @validator('url')
     def validate_age(cls, value):
-        if "http" not in value:
-            raise ValueError('Use valid link')
 
         if not validators.url(value):
             raise ValueError('Use valid link')

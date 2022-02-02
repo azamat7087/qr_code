@@ -37,23 +37,26 @@ async def validate_url(url):
 @app.get("/generate")
 async def generate(url: str = Query(..., min_length=10, max_length=300)):
 
-    await validate_url(url)
+    try:
+        await validate_url(url)
 
-    name = await parse_url(url)
-    file_name = f'{path}/{name}.png'
+        name = await parse_url(url)
+        file_name = f'{path}/{name}.png'
 
-    await generate_image(url, file_name)
+        await generate_image(url, file_name)
 
-    client.upload_file(f"{name}.png", BUCKET, f"qr_code/{name}.png")
+        client.upload_file(f"{name}.png", BUCKET, f"qr_code/{name}.png")
 
-    response = client.generate_presigned_url('get_object',
-                                             Params={'Bucket': BUCKET,
-                                                     'Key': f"qr_code/{name}.png"},
-                                             ExpiresIn=300)
+        response = client.generate_presigned_url('get_object',
+                                                 Params={'Bucket': BUCKET,
+                                                         'Key': f"qr_code/{name}.png"},
+                                                 ExpiresIn=300)
 
-    os.remove(file_name)
+        os.remove(file_name)
 
-    return {"image": response}
+        return {"image": response}
+    except OSError as e:
+        return HTTPException(status_code=400, detail=f"Something wrong: {str(e)}")
 
 
 
