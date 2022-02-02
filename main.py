@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Query, HTTPException
-import validators
+from fastapi import FastAPI, Body, HTTPException
+from schemas import Url
 import qrcode
 import random
 import boto3
@@ -9,8 +9,8 @@ app = FastAPI()
 
 path = os.getcwd()
 
-ACCESS_KEY = os.environ.get('S3_ACCESS_KEY', "N")
-SECRET_KEY = os.environ.get('S3_SECRET_KEY', "N")
+ACCESS_KEY = os.environ.get('S3_ACCESS_KEY', "fNhUxNGK2FGafTqy")
+SECRET_KEY = os.environ.get('S3_SECRET_KEY', "MjhYNvJ72VaAG9fmjYDuAhg8T7vW6d3v")
 
 client = boto3.client("s3",
                       endpoint_url="https://s3.azat.ai",
@@ -21,7 +21,10 @@ BUCKET = "public"
 
 
 async def parse_url(url: str):
-    return url.split("//")[1].split("/")[0].split(".")[0] + str(random.randint(0, 100))
+    try:
+        return url.split("//")[1].split("/")[0].split(".")[0] + str(random.randint(0, 100))
+    except Exception:
+        return str(random.randint(0, 100))
 
 
 async def generate_image(url, file_name):
@@ -29,16 +32,11 @@ async def generate_image(url, file_name):
     qrcode_image.save(f'{file_name}', 'PNG')
 
 
-async def validate_url(url):
-    if not validators.url(url):
-        raise HTTPException(status_code=400, detail="Use valid link")
-
-
-@app.get("/generate")
-async def generate(url: str = Query(..., min_length=10, max_length=300)):
+@app.post("/generate")
+async def generate(url: Url = Body(..., )):
 
     try:
-        await validate_url(url)
+        url = url.url
 
         name = await parse_url(url)
         file_name = f'{path}/{name}.png'
