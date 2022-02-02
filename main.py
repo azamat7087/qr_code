@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Body, HTTPException
 from schemas import Url
+import uvicorn
 import qrcode
 import random
 import boto3
@@ -55,6 +56,4 @@ async def generate(url: Url = Body(..., )):
         return {"image": response}
     except OSError as e:
         return HTTPException(status_code=400, detail=f"Something wrong: {str(e)}")
-
-
 
