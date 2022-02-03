@@ -10,8 +10,8 @@ app = FastAPI()
 
 path = os.getcwd()
 
-ACCESS_KEY = os.environ.get('S3_ACCESS_KEY', "fNhUxNGK2FGafTqy")
-SECRET_KEY = os.environ.get('S3_SECRET_KEY', "MjhYNvJ72VaAG9fmjYDuAhg8T7vW6d3v")
+ACCESS_KEY = os.environ.get('S3_ACCESS_KEY', "")
+SECRET_KEY = os.environ.get('S3_SECRET_KEY', "")
 
 client = boto3.client("s3",
                       endpoint_url="https://s3.azat.ai",
@@ -24,7 +24,7 @@ BUCKET = "public"
 async def parse_url(url: str):
     try:
         if "www" in url:
-            return url.split("//")[1].split("/")[1].split(".")[0] + str(random.randint(0, 100))
+            return url.split("//")[1].split("/")[0].split(".")[1] + str(random.randint(0, 100))
         else:
             return url.split("//")[1].split("/")[0].split(".")[0] + str(random.randint(0, 100))
 
