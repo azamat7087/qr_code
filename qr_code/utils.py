@@ -1,5 +1,4 @@
 import qrcode
-import random
 import os
 from time import time
 
