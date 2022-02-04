@@ -1,63 +1,26 @@
 from fastapi import FastAPI, Body, HTTPException
-from schemas import Url
-import uvicorn
-import qrcode
-import random
-import boto3
-import os
+from starlette.requests import Request
+from starlette.responses import Response
+from core.db import SessionLocal
+from routes import routes
 
 app = FastAPI()
 
-path = os.getcwd()
 
-ACCESS_KEY = os.environ.get('S3_ACCESS_KEY', "")
-SECRET_KEY = os.environ.get('S3_SECRET_KEY', "")
-
-client = boto3.client("s3",
-                      endpoint_url="https://s3.azat.ai",
-                      aws_access_key_id=ACCESS_KEY,
-                      aws_secret_access_key=SECRET_KEY
-                      )
-BUCKET = "public"
-
-
-async def parse_url(url: str):
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    response = Response("Internal server error", status_code=500)
     try:
-        if "www" in url:
-            return url.split("//")[1].split("/")[0].split(".")[1] + str(random.randint(0, 100))
-        else:
-            return url.split("//")[1].split("/")[0].split(".")[0] + str(random.randint(0, 100))
-
-    except Exception:
-        return str(random.randint(0, 100))
+        request.state.db = SessionLocal()
+        response = await call_next(request)
+    finally:
+        request.state.db.close()
+    return response
 
 
-async def generate_image(url, file_name):
-    qrcode_image = qrcode.make(f"{url}")
-    qrcode_image.save(f'{file_name}', 'PNG')
+app.include_router(routes)
 
 
-@app.post("/generate")
-async def generate(url: Url = Body(..., )):
 
-    try:
-        url = url.url
 
-        name = await parse_url(url)
-        file_name = f'{path}/{name}.png'
-
-        await generate_image(url, file_name)
-
-        client.upload_file(f"{name}.png", BUCKET, f"qr_code/{name}.png")
-
-        response = client.generate_presigned_url('get_object',
-                                                 Params={'Bucket': BUCKET,
-                                                         'Key': f"qr_code/{name}.png"},
-                                                 ExpiresIn=300)
-
-        os.remove(file_name)
-
-        return {"image": response}
-    except OSError as e:
-        return HTTPException(status_code=400, detail=f"Something wrong: {str(e)}")
 
