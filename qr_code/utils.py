@@ -6,10 +6,7 @@ from time import time
 
 async def parse_url(url: str):
     try:
-        if "www" in url:
-            return url.split("/")[2].replace(".", "_") + str(time()).split(".")[0]
-        else:
-            return url.split("/")[2].replace(".", "_") + str(time()).split(".")[0]
+        return url.split("/")[2].replace(".", "_") + str(time()).split(".")[0]
     except Exception as e:
         return str(time()).split(".")[0]
 
