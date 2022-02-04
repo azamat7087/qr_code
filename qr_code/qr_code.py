@@ -1,7 +1,7 @@
 from fastapi import Body, HTTPException, APIRouter, Request, Depends, Path, Query
 from qr_code.schemas import QRCodeCreate, QRCodeDetail, QRCodeFull, QRCodeList
 from qr_code.models import QRCode
-from .utils import parse_url, generate_image, upload_s3, get_meta_data
+from .utils import get_meta_data
 from core.utils import get_db
 from core.s3 import client, BUCKET
 from sqlalchemy.orm import Session
@@ -40,8 +40,7 @@ async def generate(request: Request, qr_code: QRCodeCreate = Body(...,), db: Ses
 @router.get("/", response_model=List[QRCodeList])
 async def qrcode_list(request: Request,
                       db: Session = Depends(get_db),
-                      source_ip: Optional[str] = Query(None,),
-                      url: Optional[str] = Query(None),):
+                      source_ip: Optional[str] = Query(None,)):
 
     params = locals().copy()
     qr_codes = service.ListMixin(db, QRCode, params).get_list()
@@ -50,7 +49,7 @@ async def qrcode_list(request: Request,
 
 
 @router.get("/{pk}", response_model=QRCodeDetail)
-async def qrcode_list(request: Request, pk=Path(...,), db: Session = Depends(get_db)):
+async def qrcode_detail(request: Request, pk=Path(...,), db: Session = Depends(get_db)):
     qr_code = service.DetailMixin(query_value=["id", pk], db=db, model=QRCode).get_detail()
     return qr_code
 

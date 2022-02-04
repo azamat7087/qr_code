@@ -1,9 +1,6 @@
-from .models import QRCode
 from core.db import Base
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .schemas import QRCodeCreate, QRCodeList
-from sqlalchemy.orm.query import Query
 import sys
 
 
