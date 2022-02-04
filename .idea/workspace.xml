@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="02199f10-165e-4ad0-b8f9-ce5ccefde29c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/qr_code/service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/s3.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/s3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/qr_code/qr_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/qr_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr_code/service.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +43,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Django/P3.9.0_Business_Auto/b2b_auto" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Django/P3.8.6-ML/film_site" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
   </component>
@@ -114,7 +109,7 @@
       <workItem from="1643785701115" duration="8136000" />
       <workItem from="1643794520241" duration="4295000" />
       <workItem from="1643886947343" duration="2586000" />
-      <workItem from="1643945308963" duration="15657000" />
+      <workItem from="1643945308963" duration="26076000" />
     </task>
     <servers />
   </component>

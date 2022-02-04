@@ -1,8 +1,6 @@
-from .models import QRCode
 from core.db import Base
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .schemas import QRCodeCreate, QRCodeList
 import sys
 
 
@@ -10,22 +8,61 @@ def str_to_class(classname):
     return getattr(sys.modules[__name__], classname)
 
 
-def get_list(db: Session, model: Base):
-    return db.query(model).all()
+class ListMixin:
+
+    def __init__(self, db: Session, model: Base, params: dict):
+        self.params = params
+        self.db = db
+        self.model = model
+
+        self.params.pop('request')
+        self.params.pop('db')
+
+    def is_null(self):
+        return all(not value for value in self.params.values())
+
+    def filter_list(self):
+        filter_set = list()
+
+        for attr in [x for x in self.params if self.params[x] is not None]:
+            filter_set.append(set(self.db.query(self.model).filter(getattr(self.model, attr) == self.params[attr]).all()))
+        query = set.intersection(*filter_set)
+
+        if not query:
+            query = None
+        return query
+
+    def get_list(self):
+        query = self.db.query(self.model).all()
+
+        if not self.is_null():
+            query = self.filter_list()
+        return query
 
 
-def get_detail(query_value: list, db: Session, model: Base):
-    return db.query(model).filter(getattr(model, query_value[0]) == query_value[1]).scalar()
+class DetailMixin:
+    def __init__(self, query_value: list, db: Session, model: Base):
+        self.query_value = query_value
+        self.db = db
+        self.model = model
+
+    def get_detail(self):
+        return self.db.query(self.model).filter(getattr(self.model, self.query_value[0]) == self.query_value[1]).scalar()
 
 
-def create_object(db: Session, item: BaseModel, classname: str):
-    obj = str_to_class(classname=classname)(**item.dict())
-    db.add(obj)
-    db.commit()
-    db.refresh(obj)
-    return obj
+class CreateMixin:
+    def __init__(self, db: Session, item: BaseModel, model: Base,):
+        self.db = db
+        self.item = item
+        self.model = model
 
+    def create_object(self):
+        obj = self.model(**self.item.dict())
+        self.db.add(obj)
+        self.db.commit()
+        self.db.refresh(obj)
+        return obj
 
-def check_uniq(db: Session, model: Base, attribute: str, value: str):
-    q = db.query(model).filter(getattr(model, attribute) == value)
-    return db.query(q.exists()).scalar()
+    def check_uniq(self, attribute: str, value: str):
+        q = self.db.query(self.model).filter(getattr(self.model, attribute) == value)
+        return self.db.query(q.exists()).scalar()
