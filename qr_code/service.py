@@ -87,7 +87,7 @@ class ListMixin:
         page = paginator.get_page()
         count = paginator.count
         count_of_pages = paginator.count_of_pages
-        return page, count, count_of_pages
+        return {"results": page, "count": count, "count_of_pages": count_of_pages}
 
     def filter_list(self):
         filter_set = list()
@@ -104,9 +104,7 @@ class ListMixin:
     def get_list(self):
         """
 
-        Проверить скорость работы через списки и через ordering
-
-        Пагинация и поиск
+        Замутить поиск и провести рефакторинг. Возможно повысить уровень абстракции
 
         """
 
@@ -118,7 +116,9 @@ class ListMixin:
 
         if query:
             paginated = self.paginate(query)
-            return {"count": paginated[1], "page": f"{self.page}/{paginated[2]}", "results": paginated[0]}
+            return {"count": paginated["count"],
+                    "page": f"{self.page} / {paginated['count_of_pages']}",
+                    "results": paginated["results"]}
 
         return query
 

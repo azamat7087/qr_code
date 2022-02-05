@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="02199f10-165e-4ad0-b8f9-ce5ccefde29c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/qr_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/qr_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/schemas.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/qr_code/service.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/testing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,7 +134,7 @@
       <workItem from="1643886947343" duration="2586000" />
       <workItem from="1643945308963" duration="26474000" />
       <workItem from="1644032254858" duration="13369000" />
-      <workItem from="1644050138471" duration="8727000" />
+      <workItem from="1644050138471" duration="9540000" />
     </task>
     <servers />
   </component>
