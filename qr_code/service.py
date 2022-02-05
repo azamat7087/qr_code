@@ -109,10 +109,12 @@ class ListMixin:
         Пагинация и поиск
 
         """
-        query = self.db.query(self.model).order_by(getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])()).all()
 
         if not self.is_null():
             query = self.filter_list()
+        else:
+            query = self.db.query(self.model).order_by(
+                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])()).all()
 
         if query:
             paginated = self.paginate(query)
