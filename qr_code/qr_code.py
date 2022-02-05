@@ -1,4 +1,4 @@
-from fastapi import Body, HTTPException, APIRouter, Request, Depends, Path, Query
+from fastapi import Body, HTTPException, APIRouter, Request, Depends, Path, Query, status
 from qr_code.schemas import QRCodeCreate, QRCodeDetail, QRCodeFull, QRCodeList
 from qr_code.models import QRCode
 from .utils import get_meta_data
@@ -12,8 +12,10 @@ import os
 router = APIRouter()
 
 
-@router.post("/", response_model=QRCodeDetail)
-async def generate(request: Request, qr_code: QRCodeCreate = Body(...,), db: Session = Depends(get_db)):
+@router.post("/", response_model=QRCodeDetail, status_code=status.HTTP_201_CREATED, tags=['QR code'])
+async def qrcode_generate(request: Request,
+                          qr_code: QRCodeCreate = Body(...,),
+                          db: Session = Depends(get_db)):
 
     try:
         url = qr_code.url
@@ -37,19 +39,21 @@ async def generate(request: Request, qr_code: QRCodeCreate = Body(...,), db: Ses
         return HTTPException(status_code=400, detail=f"Something wrong: {str(e)}")
 
 
-@router.get("/", response_model=List[QRCodeList])
+@router.get("/", response_model=List[QRCodeList], tags=['QR code'])
 async def qrcode_list(request: Request,
                       db: Session = Depends(get_db),
-                      source_ip: Optional[str] = Query(None,)):
-
+                      source_ip: Optional[str] = Query(None, max_length=17,),
+                      ordering: dict = Depends(service.ordering_parameters)):
     params = locals().copy()
-    qr_codes = service.ListMixin(db, QRCode, params).get_list()
+    qr_codes = service.ListMixin(db, QRCode, params, ordering).get_list()
 
     return qr_codes
 
 
-@router.get("/{pk}", response_model=QRCodeDetail)
-async def qrcode_detail(request: Request, pk=Path(...,), db: Session = Depends(get_db)):
+@router.get("/{pk}", response_model=QRCodeDetail, tags=['QR code'])
+async def qrcode_detail(request: Request,
+                        pk: int = Path(..., description="The ID of the qr code object", gt=0),
+                        db: Session = Depends(get_db)):
+
     qr_code = service.DetailMixin(query_value=["id", pk], db=db, model=QRCode).get_detail()
     return qr_code
-
