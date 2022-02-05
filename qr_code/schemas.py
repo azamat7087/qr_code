@@ -1,11 +1,12 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, HttpUrl
 from qr_code.models import QRCode
+from ipaddress import IPv4Address
 from datetime import datetime
 import validators
 
 
 class QRCodeBase(BaseModel):
-    url: str = Field("https://azat.ai", min_length=10, max_length=300)
+    url: HttpUrl = Field("https://azat.ai",)
 
 
 class QRCodeCreate(QRCodeBase):
