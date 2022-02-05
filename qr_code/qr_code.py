@@ -1,11 +1,11 @@
 from fastapi import Body, HTTPException, APIRouter, Request, Depends, Path, Query, status
-from qr_code.schemas import QRCodeCreate, QRCodeDetail, QRCodeFull, QRCodeList
+from qr_code.schemas import QRCodeCreate, QRCodeDetail, QRCodeFull, PaginatedSchema
 from qr_code.models import QRCode
 from .utils import get_meta_data
 from core.utils import get_db
 from core.s3 import client, BUCKET
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict, Union
 import qr_code.service as service
 import os
 
@@ -39,13 +39,16 @@ async def qrcode_generate(request: Request,
         return HTTPException(status_code=400, detail=f"Something wrong: {str(e)}")
 
 
-@router.get("/", response_model=List[QRCodeList], tags=['QR code'])
+@router.get("/", response_model=PaginatedSchema, tags=['QR code'])
 async def qrcode_list(request: Request,
                       db: Session = Depends(get_db),
                       source_ip: Optional[str] = Query(None, max_length=17,),
-                      ordering: dict = Depends(service.ordering_parameters)):
+                      ordering: dict = Depends(service.ordering_parameters),
+                      page: dict = Depends(service.pagination_parameters)):
+
     params = locals().copy()
-    qr_codes = service.ListMixin(db, QRCode, params, ordering).get_list()
+
+    qr_codes = service.ListMixin(db, QRCode, params, ordering, page).get_list()
 
     return qr_codes
 

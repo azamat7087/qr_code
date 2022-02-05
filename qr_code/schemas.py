@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, validator, HttpUrl
 from qr_code.models import QRCode
-from ipaddress import IPv4Address
+from typing import List
 from datetime import datetime
 import validators
 
@@ -31,6 +31,13 @@ class QRCodeList(QRCodeBase):
 
     class Config:
         orm_mode = True
+        orm_model = QRCode
+
+
+class PaginatedSchema(BaseModel):
+    count: int
+    page: str
+    results: List[QRCodeList] = []
 
 
 class QRCodeFull(QRCodeBase):
