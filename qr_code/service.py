@@ -20,6 +20,10 @@ def pagination_parameters(page: Optional[int] = Query(1, ge=1),
     return {"page": page, "page_size": page_size}
 
 
+def search_parameters(search: Optional[str] = Query(None, max_length=100)):
+    return {'search': search}
+
+
 class MixinBase:
     def __init__(self):
         self.params = None
@@ -32,9 +36,11 @@ class MixinBase:
         self.count = None
         self.count_of_pages = None
         self.ordering = None
+        self.search = None
+        self.search_fields = None
 
 
-class Paginator(MixinBase):
+class PaginatorMixin(MixinBase):
 
     def validate(self):
         if self.page > self.count_of_pages:
@@ -52,17 +58,18 @@ class Paginator(MixinBase):
             else:
                 right = self.count
                 left = (self.page - 1) * self.page_size
-            return self.query[left:right]
+
+            return self.query.limit(right).offset(left).all()
 
         except Exception as e:
             if str(e) == f"Page is too large. Max page {self.count_of_pages}":
                 return []
             elif str(e) == "There is only 1 page":
-                return self.query
+                return self.query.all()
 
     def paginate(self, query):
         self.query = query
-        self.count = len(query)
+        self.count = len(query.all())
         self.count_of_pages = math.ceil(self.count / self.page_size)
 
         page = self.get_page()
@@ -71,49 +78,45 @@ class Paginator(MixinBase):
         return {"results": page, "count": count, "count_of_pages": count_of_pages}
 
 
-class Filter(MixinBase):
+class FilterMixin(MixinBase):
 
     def clear_params(self):
-        for parameter in ['request', 'db', 'ordering', 'page']:
+        for parameter in ['request', 'db', 'ordering', 'page', 'search', 'model', 'search_fields']:
             self.params.pop(parameter)
 
-    def is_null(self):
+    def params_is_null(self):
         return all(not value for value in self.params.values())
 
     def filter_list(self):
-        filter_set = list()
-
-        for attr in [x for x in self.params if self.params[x] is not None]:
-            filter_set.append(
-                set(self.db.query(self.model).filter(getattr(self.model, attr) == self.params[attr]).all()))
-        return set.intersection(*filter_set)
+        return self.db.query(self.model).filter_by(**self.params)
 
 
-class Order(MixinBase):
+class OrderMixin(MixinBase):
     def set_meta_attributes(self):
-        self.reverse = {'asc': False, 'desc': True}
 
         if "-" in self.ordering['ordering']:
             self.ordering = {'value': self.ordering['ordering'].replace("-", ""), 'type': 'desc'}
         else:
             self.ordering = {'value': self.ordering['ordering'], 'type': 'asc'}
 
-    def sort_list(self, query):
-        return sorted(query, key=lambda x: getattr(x, self.ordering['value']),
-                      reverse=self.reverse[self.ordering['type']])
+
+class SearchMixin(MixinBase):
+    def search_objects(self, query):
+        return query.filter(self.model.url.like('%' + str(self.search) + '%'))  # поиск по нескольким параметрам
 
 
-class ListMixin(Order, Filter, Paginator):
+class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
 
-    def __init__(self, db: Session, model: Base, params: dict, ordering: dict, page: dict):
+    def __init__(self, params: dict,):
         super().__init__()
-
         self.params = params
-        self.db = db
-        self.model = model
-        self.page = page['page']
-        self.page_size = page['page_size']
-        self.ordering = ordering
+        self.db = params['db']
+        self.model = params['model']
+        self.page = params['page']['page']
+        self.page_size = params['page']['page_size']
+        self.ordering = params['ordering']
+        self.search = params['search']['search']
+        self.search_fields = params['search_fields']
         self.clear_params()
         self.set_meta_attributes()
 
@@ -124,11 +127,16 @@ class ListMixin(Order, Filter, Paginator):
 
         """
 
-        if not self.is_null():
-            query = self.filter_list()
+        if self.params_is_null():
+            query = self.db.query(self.model)
         else:
-            query = self.db.query(self.model).order_by(
-                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])()).all()
+            query = self.filter_list()
+
+        if self.search:
+            query = self.search_objects(query)
+
+        query = query.order_by(
+                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])())
 
         if query:
             paginated = self.paginate(query)
@@ -137,7 +145,7 @@ class ListMixin(Order, Filter, Paginator):
                     "page": f"{self.page} / {paginated['count_of_pages']}",
                     "results": paginated["results"]}
 
-        return query
+        return None
 
 
 class DetailMixin:

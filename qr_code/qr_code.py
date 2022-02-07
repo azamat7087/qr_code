@@ -44,11 +44,13 @@ async def qrcode_list(request: Request,
                       db: Session = Depends(get_db),
                       source_ip: Optional[str] = Query(None, max_length=17,),
                       ordering: dict = Depends(service.ordering_parameters),
-                      page: dict = Depends(service.pagination_parameters)):
+                      page: dict = Depends(service.pagination_parameters),
+                      search: dict = Depends(service.search_parameters)):
 
     params = locals().copy()
-
-    qr_codes = service.ListMixin(db, QRCode, params, ordering, page).get_list()
+    params['model'] = QRCode
+    params['search_fields'] = ['url', 'id']
+    qr_codes = service.ListMixin(params=params).get_list()
 
     return qr_codes
 
