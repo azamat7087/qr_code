@@ -21,12 +21,13 @@ def pagination_parameters(page: Optional[int] = Query(1, ge=1),
 
 
 class Paginator:
-    def __init__(self, query: list, page: int, page_size: int):
-        self.query = query.copy()
-        self.count = len(query)
+    def __init__(self, page: int, page_size: int):
         self.page_size = page_size
         self.page = page
-        self.count_of_pages = math.ceil(self.count / self.page_size)
+
+        self.query = None
+        self.count = None
+        self.count_of_pages = None
 
     def validate(self):
         if self.page > self.count_of_pages:
@@ -52,6 +53,57 @@ class Paginator:
             elif str(e) == "There is only 1 page":
                 return self.query
 
+    def paginate(self, query):
+        self.query = query
+        self.count = len(query)
+        self.count_of_pages = math.ceil(self.count / self.page_size)
+
+        page = self.get_page()
+        count = self.count
+        count_of_pages = self.count_of_pages
+        return {"results": page, "count": count, "count_of_pages": count_of_pages}
+
+
+class Filter:
+
+    def __init__(self, db: Session,  model: Base, params: dict):
+
+        self.params = params
+        self.db = db
+        self.model = model
+        self.clear_params()
+
+    def clear_params(self):
+        for parameter in ['request', 'db', 'ordering', 'page']:
+            self.params.pop(parameter)
+
+    def is_null(self):
+        return all(not value for value in self.params.values())
+
+    def filter_list(self):
+        filter_set = list()
+
+        for attr in [x for x in self.params if self.params[x] is not None]:
+            filter_set.append(
+                set(self.db.query(self.model).filter(getattr(self.model, attr) == self.params[attr]).all()))
+        return set.intersection(*filter_set)
+
+
+class Order:
+
+    def __init__(self, ordering: dict,):
+
+        self.reverse = {'asc': False, 'desc': True}
+
+        if "-" in ordering['ordering']:
+            self.ordering = {'value': ordering['ordering'].replace("-", ""), 'type': 'desc'}
+        else:
+            self.ordering = {'value': ordering['ordering'], 'type': 'asc'}
+
+    def sort_list(self, query):
+        return sorted(query, key=lambda x: getattr(x, self.ordering['value']),
+                      reverse=self.reverse[self.ordering['type']])
+
 
 class ListMixin:
 
@@ -63,43 +115,9 @@ class ListMixin:
         self.page = page['page']
         self.page_size = page['page_size']
 
-        self.clear_params()
-
-        self.reverse = {'asc': False, 'desc': True}
-
-        if "-" in ordering['ordering']:
-            self.ordering = {'value': ordering['ordering'].replace("-", ""), 'type': 'desc'}
-        else:
-            self.ordering = {'value': ordering['ordering'], 'type': 'asc'}
-
-    def clear_params(self):
-        for parameter in ['request', 'db', 'ordering', 'page']:
-            self.params.pop(parameter)
-
-    def is_null(self):
-        return all(not value for value in self.params.values())
-
-    def sort_list(self, query):
-        return sorted(query, key=lambda x: getattr(x, self.ordering['value']), reverse=self.reverse[self.ordering['type']])
-
-    def paginate(self, query):
-        paginator = Paginator(query=query, page=self.page, page_size=self.page_size)
-        page = paginator.get_page()
-        count = paginator.count
-        count_of_pages = paginator.count_of_pages
-        return {"results": page, "count": count, "count_of_pages": count_of_pages}
-
-    def filter_list(self):
-        filter_set = list()
-
-        for attr in [x for x in self.params if self.params[x] is not None]:
-            filter_set.append(set(self.db.query(self.model).filter(getattr(self.model, attr) == self.params[attr]).all()))
-        query = self.sort_list(set.intersection(*filter_set))
-
-        if not query:
-            query = None
-
-        return query
+        self.filter = Filter(db=db, model=model, params=params)
+        self.ordering = Order(ordering=ordering)
+        self.paginator = Paginator(page=self.page, page_size=self.page_size)
 
     def get_list(self):
         """
@@ -108,14 +126,14 @@ class ListMixin:
 
         """
 
-        if not self.is_null():
-            query = self.filter_list()
+        if not self.filter.is_null():
+            query = self.filter.filter_list()
         else:
             query = self.db.query(self.model).order_by(
-                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])()).all()
+                getattr(getattr(self.model, self.ordering.ordering['value']), self.ordering.ordering['type'])()).all()
 
         if query:
-            paginated = self.paginate(query)
+            paginated = self.paginator.paginate(query)
             return {"count": paginated["count"],
                     "page": f"{self.page} / {paginated['count_of_pages']}",
                     "results": paginated["results"]}
