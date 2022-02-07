@@ -20,14 +20,21 @@ def pagination_parameters(page: Optional[int] = Query(1, ge=1),
     return {"page": page, "page_size": page_size}
 
 
-class Paginator:
-    def __init__(self, page: int, page_size: int):
-        self.page_size = page_size
-        self.page = page
-
+class MixinBase:
+    def __init__(self):
+        self.params = None
+        self.db = None
+        self.model = None
+        self.page = None
+        self.page_size = None
+        self.reverse = None
         self.query = None
         self.count = None
         self.count_of_pages = None
+        self.ordering = None
+
+
+class Paginator(MixinBase):
 
     def validate(self):
         if self.page > self.count_of_pages:
@@ -64,14 +71,7 @@ class Paginator:
         return {"results": page, "count": count, "count_of_pages": count_of_pages}
 
 
-class Filter:
-
-    def __init__(self, db: Session,  model: Base, params: dict):
-
-        self.params = params
-        self.db = db
-        self.model = model
-        self.clear_params()
+class Filter(MixinBase):
 
     def clear_params(self):
         for parameter in ['request', 'db', 'ordering', 'page']:
@@ -89,35 +89,33 @@ class Filter:
         return set.intersection(*filter_set)
 
 
-class Order:
-
-    def __init__(self, ordering: dict,):
-
+class Order(MixinBase):
+    def set_meta_attributes(self):
         self.reverse = {'asc': False, 'desc': True}
 
-        if "-" in ordering['ordering']:
-            self.ordering = {'value': ordering['ordering'].replace("-", ""), 'type': 'desc'}
+        if "-" in self.ordering['ordering']:
+            self.ordering = {'value': self.ordering['ordering'].replace("-", ""), 'type': 'desc'}
         else:
-            self.ordering = {'value': ordering['ordering'], 'type': 'asc'}
+            self.ordering = {'value': self.ordering['ordering'], 'type': 'asc'}
 
     def sort_list(self, query):
         return sorted(query, key=lambda x: getattr(x, self.ordering['value']),
                       reverse=self.reverse[self.ordering['type']])
 
 
-class ListMixin:
+class ListMixin(Order, Filter, Paginator):
 
     def __init__(self, db: Session, model: Base, params: dict, ordering: dict, page: dict):
+        super().__init__()
 
         self.params = params
         self.db = db
         self.model = model
         self.page = page['page']
         self.page_size = page['page_size']
-
-        self.filter = Filter(db=db, model=model, params=params)
-        self.ordering = Order(ordering=ordering)
-        self.paginator = Paginator(page=self.page, page_size=self.page_size)
+        self.ordering = ordering
+        self.clear_params()
+        self.set_meta_attributes()
 
     def get_list(self):
         """
@@ -126,14 +124,15 @@ class ListMixin:
 
         """
 
-        if not self.filter.is_null():
-            query = self.filter.filter_list()
+        if not self.is_null():
+            query = self.filter_list()
         else:
             query = self.db.query(self.model).order_by(
-                getattr(getattr(self.model, self.ordering.ordering['value']), self.ordering.ordering['type'])()).all()
+                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])()).all()
 
         if query:
-            paginated = self.paginator.paginate(query)
+            paginated = self.paginate(query)
+
             return {"count": paginated["count"],
                     "page": f"{self.page} / {paginated['count_of_pages']}",
                     "results": paginated["results"]}
