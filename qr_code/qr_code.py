@@ -49,7 +49,7 @@ async def qrcode_list(request: Request,
 
     params = locals().copy()
     params['model'] = QRCode
-    params['search_fields'] = ['url', 'id']
+    params['search_fields'] = ['qr_code', 'url', 'id']
     qr_codes = service.ListMixin(params=params).get_list()
 
     return qr_codes
