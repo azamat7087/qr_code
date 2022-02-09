@@ -1,3 +1,5 @@
+import inspect
+from qr_code import qr_code
 from sqlalchemy.sql.elements import or_
 
 from core.db import Base
@@ -115,6 +117,8 @@ class SearchMixin(MixinBase):
 
 
 class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
+    model = None
+    params = None
 
     def __init__(self, params: dict,):
         super().__init__()

@@ -24,7 +24,7 @@ async def upload_s3(client, file_name, bucket, name):
     link = client.generate_presigned_url('get_object',
                                          Params={'Bucket': bucket,
                                                  'Key': f"qr_code/{name}.png"},
-                                         ExpiresIn=1300)
+                                         ExpiresIn=604800)  # Seconds
     return link
 
 

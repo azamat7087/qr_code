@@ -8,6 +8,8 @@ import validators
 class QRCodeBase(BaseModel):
     url: HttpUrl = Field("https://azat.ai",)
 
+# class Expiration(BaseModel):
+
 
 class QRCodeCreate(QRCodeBase):
     @validator('url')

@@ -42,14 +42,15 @@ async def qrcode_generate(request: Request,
 @router.get("/", response_model=PaginatedSchema, tags=['QR code'])
 async def qrcode_list(request: Request,
                       db: Session = Depends(get_db),
-                      source_ip: Optional[str] = Query(None, max_length=17,),
+                      source_ip: Optional[str] = Query(None, max_length=17,),  # Фильтр
                       ordering: dict = Depends(service.ordering_parameters),
                       page: dict = Depends(service.pagination_parameters),
                       search: dict = Depends(service.search_parameters)):
 
     params = locals().copy()
     params['model'] = QRCode
-    params['search_fields'] = ['qr_code', 'url', 'id']
+    params['search_fields'] = ['qr_code', 'url']
+
     qr_codes = service.ListMixin(params=params).get_list()
 
     return qr_codes
