@@ -1,3 +1,5 @@
+from sqlalchemy.sql.elements import or_
+
 from core.db import Base
 from pydantic import BaseModel
 from fastapi import Query
@@ -16,7 +18,7 @@ def ordering_parameters(ordering: Optional[str] = Query("id")):
 
 
 def pagination_parameters(page: Optional[int] = Query(1, ge=1),
-                          page_size: Optional[int] = Query(10, ge=1)):
+                          page_size: Optional[int] = Query(10, ge=1, le=1000)):
     return {"page": page, "page_size": page_size}
 
 
@@ -99,10 +101,17 @@ class OrderMixin(MixinBase):
         else:
             self.ordering = {'value': self.ordering['ordering'], 'type': 'asc'}
 
+    def order(self, query):
+        return query.order_by(
+                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])())
+
 
 class SearchMixin(MixinBase):
     def search_objects(self, query):
-        return query.filter(self.model.url.like('%' + str(self.search) + '%'))  # поиск по нескольким параметрам
+
+        parameters = [getattr(self.model, f"{field}").ilike('%' + str(self.search) + '%') for
+                      field in self.search_fields if getattr(self.model, f"{field}").type.python_type == str]
+        return query.filter(or_(*parameters))
 
 
 class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
@@ -123,7 +132,7 @@ class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
     def get_list(self):
         """
 
-        Замутить поиск и провести рефакторинг. Возможно повысить уровень абстракции
+        Провести рефакторинг. Возможно повысить уровень абстракции
 
         """
 
@@ -135,8 +144,7 @@ class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
         if self.search:
             query = self.search_objects(query)
 
-        query = query.order_by(
-                getattr(getattr(self.model, self.ordering['value']), self.ordering['type'])())
+        query = self.order(query)
 
         if query:
             paginated = self.paginate(query)
