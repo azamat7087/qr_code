@@ -60,6 +60,7 @@ class QRCodeFull(QRCodeBase, Expiration):
 
 class QRCodeRegenerate(QRCodeBase, Expiration):
     qr_code: str
+    expiration_date: datetime = Field(None)
 
     class Meta:
         orm_mode = True
