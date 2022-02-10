@@ -1,10 +1,12 @@
+import datetime
 import inspect
 from qr_code import qr_code
 from sqlalchemy.sql.elements import or_
+from core.utils import get_db
 
 from core.db import Base
 from pydantic import BaseModel
-from fastapi import Query
+from fastapi import Query, Depends, Request
 from typing import Optional
 from sqlalchemy.orm import Session
 import sys
@@ -26,6 +28,18 @@ def pagination_parameters(page: Optional[int] = Query(1, ge=1),
 
 def search_parameters(search: Optional[str] = Query(None, max_length=100)):
     return {'search': search}
+
+
+def default_parameters(request: Request, db: Session = Depends(get_db), ):
+    return {'request': request, 'db': db}
+
+
+def default_list_parameters(default_params: dict = Depends(default_parameters),
+                            ordering: dict = Depends(ordering_parameters),
+                            page: dict = Depends(pagination_parameters),
+                            search: dict = Depends(search_parameters)):
+
+    return {'default_params': default_params, "ordering": ordering, "page": page, "search": search}
 
 
 class MixinBase:
@@ -85,7 +99,7 @@ class PaginatorMixin(MixinBase):
 class FilterMixin(MixinBase):
 
     def clear_params(self):
-        for parameter in ['request', 'db', 'ordering', 'page', 'search', 'model', 'search_fields']:
+        for parameter in ['params', 'model', 'search_fields']:
             self.params.pop(parameter)
 
     def params_is_null(self):
@@ -123,13 +137,14 @@ class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
 
     def __init__(self, params: dict,):
         super().__init__()
+        print(params)
         self.params = params
-        self.db = params['db']
+        self.db = params['params']['default_params']['db']
         self.model = params['model']
-        self.page = params['page']['page']
-        self.page_size = params['page']['page_size']
-        self.ordering = params['ordering']
-        self.search = params['search']['search']
+        self.page = params['params']['page']['page']
+        self.page_size = params['params']['page']['page_size']
+        self.ordering = params['params']['ordering']
+        self.search = params['params']['search']['search']
         self.search_fields = params['search_fields']
         self.clear_params()
         self.set_meta_attributes()
@@ -196,4 +211,5 @@ class UpdateMixin:
         self.db.add(db_object)
         self.db.commit()
         self.db.refresh(db_object)
+
         return db_object
