@@ -1,3 +1,5 @@
+import inspect
+from qr_code import qr_code
 from sqlalchemy.sql.elements import or_
 
 from core.db import Base
@@ -115,6 +117,8 @@ class SearchMixin(MixinBase):
 
 
 class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
+    model = None
+    params = None
 
     def __init__(self, params: dict,):
         super().__init__()
@@ -130,11 +134,6 @@ class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
         self.set_meta_attributes()
 
     def get_list(self):
-        """
-
-        Провести рефакторинг. Возможно повысить уровень абстракции
-
-        """
 
         if self.params_is_null():
             query = self.db.query(self.model)
@@ -167,13 +166,12 @@ class DetailMixin:
 
 
 class CreateMixin:
-    def __init__(self, db: Session, item: BaseModel, model: Base,):
+    def __init__(self, db: Session, model: Base,):
         self.db = db
-        self.item = item
         self.model = model
 
-    def create_object(self):
-        obj = self.model(**self.item.dict())
+    def create_object(self, item):
+        obj = self.model(**item.dict())
         self.db.add(obj)
         self.db.commit()
         self.db.refresh(obj)
@@ -182,3 +180,19 @@ class CreateMixin:
     def check_uniq(self, attribute: str, value: str):
         q = self.db.query(self.model).filter(getattr(self.model, attribute) == value)
         return self.db.query(q.exists()).scalar()
+
+
+class UpdateMixin:
+    def __init__(self, db: Session, model: Base,):
+        self.db = db
+        self.model = model
+
+    def update(self, db_object: BaseModel, new_object: BaseModel):
+
+        for attribute, value in vars(new_object).items():
+            setattr(db_object, attribute, value) if value else None
+
+        self.db.add(db_object)
+        self.db.commit()
+        self.db.refresh(db_object)
+        return db_object
