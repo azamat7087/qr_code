@@ -58,6 +58,7 @@ async def qrcode_generate(request: Request,
 async def qrcode_regenerate(request: Request,
                             qr_code: QRCodeCreate = Body(...,),
                             db: Session = Depends(get_db)):
+
     old_qr_code = service.DetailMixin(query_value=["url", qr_code.url], db=db, model=QRCode).get_detail()
     new_link = await get_s3_link(client=client, bucket=BUCKET, name=old_qr_code.file_name, expiration=qr_code.expiration)
 

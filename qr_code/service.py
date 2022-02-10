@@ -113,6 +113,7 @@ class SearchMixin(MixinBase):
 
         parameters = [getattr(self.model, f"{field}").ilike('%' + str(self.search) + '%') for
                       field in self.search_fields if getattr(self.model, f"{field}").type.python_type == str]
+
         return query.filter(or_(*parameters))
 
 
