@@ -1,3 +1,5 @@
+import datetime
+
 import qrcode
 import os
 from time import time
@@ -21,18 +23,20 @@ async def generate_image(url, name):
 async def upload_s3(client, file_name, bucket, name):
     client.upload_file(f"{file_name}", bucket, f"qr_code/{name}.png")
 
+
+async def get_s3_link(client, name, bucket, expiration: datetime.timedelta = 604800):
     link = client.generate_presigned_url('get_object',
                                          Params={'Bucket': bucket,
                                                  'Key': f"qr_code/{name}.png"},
-                                         ExpiresIn=604800)  # Seconds
+                                         ExpiresIn=expiration.total_seconds())  # Seconds
     return link
 
 
-async def get_meta_data(url, request, client, bucket):
+async def get_meta_data(url, request, client, bucket, expiration):
 
     name = await parse_url(url)
     file_name = await generate_image(url, name)
     source_ip = request.client.host
-    link = await upload_s3(client=client, file_name=file_name, bucket=bucket, name=name)
-
+    await upload_s3(client=client, file_name=file_name, bucket=bucket, name=name,)
+    link = await get_s3_link(client, name, bucket, expiration)
     return {"name": name, "file_name": file_name, "source_ip": source_ip, "link": link}

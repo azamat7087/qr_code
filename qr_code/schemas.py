@@ -1,17 +1,19 @@
 from pydantic import BaseModel, Field, validator, HttpUrl
 from qr_code.models import QRCode
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 import validators
 
 
 class QRCodeBase(BaseModel):
     url: HttpUrl = Field("https://azat.ai",)
 
-# class Expiration(BaseModel):
+
+class Expiration(BaseModel):
+    expiration: timedelta = Field(timedelta(seconds=604800))
 
 
-class QRCodeCreate(QRCodeBase):
+class QRCodeCreate(QRCodeBase, Expiration):
     @validator('url')
     def validate_age(cls, value):
         if not validators.url(value):
@@ -42,12 +44,22 @@ class PaginatedSchema(BaseModel):
     results: List[QRCodeList] = []
 
 
-class QRCodeFull(QRCodeBase):
+class QRCodeFull(QRCodeBase, Expiration):
     id: int = Field(None)
     qr_code: str
     source_ip: str
+    file_name: str
+    expiration_date: datetime = Field(None)
     date_of_add: datetime = Field(None)
     date_of_update: datetime = Field(None)
+
+    class Meta:
+        orm_mode = True
+        orm_model = QRCode
+
+
+class QRCodeRegenerate(QRCodeBase, Expiration):
+    qr_code: str
 
     class Meta:
         orm_mode = True
