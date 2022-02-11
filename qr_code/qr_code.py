@@ -1,13 +1,10 @@
 import datetime
-
 from fastapi import Body, HTTPException, APIRouter, Request, Depends, Path, Query, status
 from qr_code.schemas import QRCodeCreate, QRCodeDetail, QRCodeFull, PaginatedSchema, QRCodeRegenerate
 from qr_code.models import QRCode
 from .utils import get_meta_data, get_s3_link
-from core.utils import get_db
 from core.s3 import client, BUCKET
-from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Union
+from typing import Optional
 import qr_code.service as service
 import os
 
@@ -76,8 +73,7 @@ async def qrcode_regenerate(params: dict = Depends(service.default_parameters),
 
 @router.get("/", response_model=PaginatedSchema, tags=['QR code'])
 async def qrcode_list(params: dict = Depends(service.default_list_parameters),
-                      source_ip: Optional[str] = Query(None, max_length=17,),  # Фильтр
-                      ):
+                      source_ip: Optional[str] = Query(None, max_length=17,)):
 
     params = locals().copy()
     params['model'] = QRCode
@@ -90,8 +86,7 @@ async def qrcode_list(params: dict = Depends(service.default_list_parameters),
 
 @router.get("/{pk}", response_model=QRCodeDetail, tags=['QR code'])
 async def qrcode_detail(params: dict = Depends(service.default_parameters),
-                        pk: int = Path(..., description="The ID of the qr code object", gt=0),
-                        ):
+                        pk: int = Path(..., description="The ID of the qr code object", gt=0)):
 
     qr_code = service.DetailMixin(query_value=["id", pk], db=params['db'], model=QRCode).get_detail()
 
