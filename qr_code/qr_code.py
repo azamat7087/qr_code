@@ -11,8 +11,8 @@ import os
 router = APIRouter()
 
 
-async def check_expiration(expiration_date: datetime.datetime):
-    if datetime.datetime.now() > expiration_date:
+async def check_expiration(qrcode: QRCode):
+    if datetime.datetime.now() > qrcode.expiration_date:
         raise HTTPException(status_code=400, detail="QR code created, but expired")
 
 
@@ -27,7 +27,7 @@ async def qrcode_generate(params: dict = Depends(service.default_parameters),
 
             qr_code = service.DetailMixin(query_value=["url", qr_code.url], db=params['db'], model=QRCode).get_detail()
 
-            await check_expiration(qr_code.expiration_date)
+            await check_expiration(qr_code)
 
             return qr_code
 
@@ -50,7 +50,7 @@ async def qrcode_generate(params: dict = Depends(service.default_parameters),
         return HTTPException(status_code=400, detail=f"Something wrong: {str(e)}")
 
 
-@router.patch("/", response_model=QRCodeDetail, status_code=status.HTTP_205_RESET_CONTENT, tags=['QR code'])
+@router.patch("/", response_model=QRCodeDetail, status_code=status.HTTP_200_OK, tags=['QR code'])
 async def qrcode_regenerate(params: dict = Depends(service.default_parameters),
                             qr_code: QRCodeCreate = Body(...,)):
 
@@ -88,8 +88,7 @@ async def qrcode_list(params: dict = Depends(service.default_list_parameters),
 async def qrcode_detail(params: dict = Depends(service.default_parameters),
                         pk: int = Path(..., description="The ID of the qr code object", gt=0)):
 
-    qr_code = service.DetailMixin(query_value=["id", pk], db=params['db'], model=QRCode).get_detail()
-
-    await check_expiration(qr_code.expiration_date)
+    qr_code = service.DetailMixin(query_value=["id", pk], db=params['db'], model=QRCode).get_or_404()
+    await check_expiration(qr_code)
 
     return qr_code
