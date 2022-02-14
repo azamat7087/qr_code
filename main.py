@@ -4,7 +4,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from core.db import SessionLocal
 from routes import routes
-
+import os
 app = FastAPI()
 
 origins = [
