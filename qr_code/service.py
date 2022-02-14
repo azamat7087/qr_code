@@ -1,12 +1,9 @@
-import datetime
-import inspect
-from qr_code import qr_code
 from sqlalchemy.sql.elements import or_
 from core.utils import get_db
 
 from core.db import Base
 from pydantic import BaseModel
-from fastapi import Query, Depends, Request
+from fastapi import Query, Depends, Request, HTTPException, status
 from typing import Optional
 from sqlalchemy.orm import Session
 import sys
@@ -137,7 +134,6 @@ class ListMixin(OrderMixin, SearchMixin, FilterMixin, PaginatorMixin):
 
     def __init__(self, params: dict,):
         super().__init__()
-        print(params)
         self.params = params
         self.db = params['params']['default_params']['db']
         self.model = params['model']
@@ -179,6 +175,12 @@ class DetailMixin:
 
     def get_detail(self):
         return self.db.query(self.model).filter(getattr(self.model, self.query_value[0]) == self.query_value[1]).scalar()
+
+    def get_or_404(self):
+        obj = self.get_detail()
+        if not obj:
+            raise HTTPException(detail="Not found", status_code=status.HTTP_404_NOT_FOUND)
+        return obj
 
 
 class CreateMixin:

@@ -1,8 +1,8 @@
-"""Updated url address length
+"""New db
 
-Revision ID: 417d2c0a2ca1
-Revises: c4ccbbb4e77c
-Create Date: 2022-02-05 10:34:04.432160
+Revision ID: 7e12717c26d2
+Revises: 
+Create Date: 2022-02-14 10:10:34.188600
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '417d2c0a2ca1'
-down_revision = 'c4ccbbb4e77c'
+revision = '7e12717c26d2'
+down_revision = None
 branch_labels = None
 depends_on = None
 
