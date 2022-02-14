@@ -1,11 +1,12 @@
 import datetime
-from fastapi import Body, HTTPException, APIRouter, Request, Depends, Path, Query, status
+from fastapi import Body, HTTPException, APIRouter, Depends, Path, Query, status
 from qr_code.schemas import QRCodeCreate, QRCodeDetail, QRCodeFull, PaginatedSchema, QRCodeRegenerate
 from qr_code.models import QRCode
 from .utils import get_meta_data, get_s3_link
 from core.s3 import client, BUCKET
 from typing import Optional
-import qr_code.service as service
+import core.service as service
+from auth.jwt_bearer import JWTBearer
 import os
 
 router = APIRouter()
@@ -54,11 +55,7 @@ async def qrcode_generate(params: dict = Depends(service.default_parameters),
 async def qrcode_regenerate(params: dict = Depends(service.default_parameters),
                             qr_code: QRCodeCreate = Body(...,)):
 
-    old_qr_code = service.DetailMixin(query_value=["url", qr_code.url], db=params['db'], model=QRCode).get_detail()
-
-    if not old_qr_code:
-        raise HTTPException(detail="QR code didn't created, please use POST request",
-                            status_code=status.HTTP_400_BAD_REQUEST)
+    old_qr_code = service.DetailMixin(query_value=["url", qr_code.url], db=params['db'], model=QRCode).get_or_404()
 
     new_link = await get_s3_link(client=client, bucket=BUCKET, name=old_qr_code.file_name, expiration=qr_code.expiration)
 
@@ -71,14 +68,14 @@ async def qrcode_regenerate(params: dict = Depends(service.default_parameters),
     return new_object
 
 
-@router.get("/", response_model=PaginatedSchema, tags=['QR code'])
+@router.get("/", response_model=PaginatedSchema, tags=['QR code'], dependencies=[Depends(JWTBearer())], )
 async def qrcode_list(params: dict = Depends(service.default_list_parameters),
-                      source_ip: Optional[str] = Query(None, max_length=17,)):
+                      source_ip: Optional[str] = Query(None, max_length=17,),
+                      ):
 
     params = locals().copy()
     params['model'] = QRCode
     params['search_fields'] = ['qr_code', 'url']
-
     qr_codes = service.ListMixin(params=params).get_list()
 
     return qr_codes
