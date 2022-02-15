@@ -1,45 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="02199f10-165e-4ad0-b8f9-ce5ccefde29c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/auth/jwt_bearer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth/jwt_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth/jwt_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/qr_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/qr_code/qr_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qr_code/service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/3azamat_com1644392053.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/3azamat_com1644392083.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391124.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391299.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391302.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391319.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391326.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391328.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391656.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391677.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391713.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391724.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391728.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391803.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391804.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391805.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat21121422_com1644391806.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat22_com1644389981.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat22_com1644390003.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat22_com1644390309.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat22_com1644390371.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azamat22_com1644390509.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azat_ai1644035521.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/azat_ai1644036432.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/docs_sqlalchemy_org1644035333.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/docs_sqlalchemy_org1644035511.png" beforeDir="false" />
-    </list>
+    <list default="true" id="02199f10-165e-4ad0-b8f9-ce5ccefde29c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,7 +40,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Django/P3.9.0_Business_Auto/b2b_auto" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
   </component>
@@ -175,7 +137,7 @@
       <workItem from="1644223431390" duration="39030000" />
       <workItem from="1644550290565" duration="4765000" />
       <workItem from="1644658619910" duration="1298000" />
-      <workItem from="1644811301377" duration="18238000" />
+      <workItem from="1644811301377" duration="24997000" />
     </task>
     <servers />
   </component>
