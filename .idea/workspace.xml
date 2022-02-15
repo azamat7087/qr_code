@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="02199f10-165e-4ad0-b8f9-ce5ccefde29c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth/jwt_bearer.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth/jwt_bearer.py" afterDir="false" />
-    </list>
+    <list default="true" id="02199f10-165e-4ad0-b8f9-ce5ccefde29c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -140,7 +137,7 @@
       <workItem from="1644223431390" duration="39030000" />
       <workItem from="1644550290565" duration="4765000" />
       <workItem from="1644658619910" duration="1298000" />
-      <workItem from="1644811301377" duration="24623000" />
+      <workItem from="1644811301377" duration="24997000" />
     </task>
     <servers />
   </component>
