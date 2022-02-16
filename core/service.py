@@ -74,7 +74,7 @@ class PaginatorMixin(MixinBase):
                 right = self.count
                 left = (self.page - 1) * self.page_size
 
-            return self.query.limit(right).offset(left).all()
+            return self.query.slice(left, right).all()
 
         except Exception as e:
             if str(e) == f"Page is too large. Max page {self.count_of_pages}":
